@@ -1,6 +1,6 @@
 "use client"
 
-import { useState } from "react"
+import { useState, FormEvent, ChangeEvent } from "react"
 import Link from "next/link"
 import { useRouter, useSearchParams } from "next/navigation"
 import { Button } from "@/components/ui/button"
@@ -33,17 +33,17 @@ export default function AuthPage() {
     confirmPassword: "",
   })
 
-  const handleLoginChange = (e) => {
+  const handleLoginChange = (e: ChangeEvent<HTMLInputElement>) => {
     const { id, value } = e.target
     setLoginData((prev) => ({ ...prev, [id]: value }))
   }
 
-  const handleRegisterChange = (e) => {
+  const handleRegisterChange = (e: ChangeEvent<HTMLInputElement>) => {
     const { id, value } = e.target
     setRegisterData((prev) => ({ ...prev, [id]: value }))
   }
 
-  const handleLogin = async (e) => {
+  const handleLogin = async (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault()
     setIsLoading(true)
 
@@ -56,9 +56,8 @@ export default function AuthPage() {
           description: "Redirecting to dashboard...",
         })
 
-        // Use replace instead of push and ensure we wait for state updates
-        await new Promise((resolve) => setTimeout(resolve, 100))
-        router.replace(redirectPath)
+        // Force a hard navigation to ensure state is fresh
+        window.location.href = redirectPath
       }
     } catch (error) {
       toast({
@@ -89,9 +88,8 @@ export default function AuthPage() {
           description: "Logged in with demo account",
         })
 
-        // Use replace instead of push and ensure we wait for state updates
-        await new Promise((resolve) => setTimeout(resolve, 100))
-        router.replace(redirectPath)
+        // Force a hard navigation to ensure state is fresh
+        window.location.href = redirectPath
       }
     } catch (error) {
       toast({
@@ -104,7 +102,7 @@ export default function AuthPage() {
     }
   }
 
-  const handleRegister = async (e) => {
+  const handleRegister = async (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault()
     setIsLoading(true)
 

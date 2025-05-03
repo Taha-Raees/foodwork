@@ -15,7 +15,7 @@ type User = {
 // Define the AuthContext type
 type AuthContextType = {
   user: User
-  login: (email: string, password: string) => Promise<void>
+  login: (email: string, password: string) => Promise<boolean>
   register: (userData: any) => Promise<void>
   logout: () => void
   isLoading: boolean
