@@ -3,7 +3,6 @@
 import { useState } from "react"
 import { useRouter } from "next/navigation"
 import { Button } from "@/components/ui/button"
-import { Input } from "@/components/ui/input"
 import { useAuth } from "@/contexts/auth-context"
 
 export default function LoginPage() {
@@ -13,14 +12,8 @@ export default function LoginPage() {
 
   const handleQuickLogin = async () => {
     setIsLoading(true)
-    try {
-      await login("demo@foodworks.com", "demo123")
-      router.push("/dashboard")
-    } catch (error) {
-      console.error("Login failed:", error)
-    } finally {
-      setIsLoading(false)
-    }
+    await login("demo@foodworks.com", "demo123")
+    router.push("/dashboard")
   }
 
   return (
