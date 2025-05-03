@@ -1,65 +1,292 @@
 "use client"
 
-import { useRouter } from "next/navigation"
 import { useState } from "react"
+import Link from "next/link"
+import { useRouter, useSearchParams } from "next/navigation"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
+import { Label } from "@/components/ui/label"
+import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card"
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
+import { toast } from "@/components/ui/use-toast"
+import { useAuth } from "@/contexts/auth-context"
 
-export default function LoginPage() {
+export default function AuthPage() {
   const router = useRouter()
-  const [email, setEmail] = useState("")
-  const [password, setPassword] = useState("")
+  const searchParams = useSearchParams()
+  const redirectPath = searchParams.get("redirect") || "/dashboard"
+  const { login, register: registerUser } = useAuth()
+  const [isLoading, setIsLoading] = useState(false)
 
-  const handleSubmit = (e: React.FormEvent) => {
-    e.preventDefault()
-    router.push("/dashboard")
+  // Login form state
+  const [loginData, setLoginData] = useState({
+    email: "",
+    password: "",
+  })
+
+  // Register form state
+  const [registerData, setRegisterData] = useState({
+    firstName: "",
+    lastName: "",
+    email: "",
+    password: "",
+    confirmPassword: "",
+  })
+
+  const handleLoginChange = (e) => {
+    const { id, value } = e.target
+    setLoginData((prev) => ({ ...prev, [id]: value }))
   }
 
-  const handleQuickLogin = () => {
-    setEmail("demo@foodworks.com")
-    setPassword("demo123")
-    router.push("/dashboard")
+  const handleRegisterChange = (e) => {
+    const { id, value } = e.target
+    setRegisterData((prev) => ({ ...prev, [id]: value }))
+  }
+
+  const handleLogin = async (e) => {
+    e.preventDefault()
+    setIsLoading(true)
+
+    try {
+      await login(loginData.email, loginData.password)
+
+      toast({
+        title: "Login successful",
+        description: "Redirecting to dashboard...",
+      })
+
+      // Ensure redirection happens after login is complete
+      setTimeout(() => {
+        router.push(redirectPath)
+      }, 500)
+    } catch (error) {
+      toast({
+        title: "Login failed",
+        description: "Please check your credentials and try again.",
+        variant: "destructive",
+      })
+      setIsLoading(false)
+    }
+  }
+
+  const handleDemoLogin = async () => {
+    setIsLoading(true)
+
+    // Set demo credentials
+    setLoginData({
+      email: "demo@foodworks.com",
+      password: "demo123",
+    })
+
+    try {
+      await login("demo@foodworks.com", "demo123")
+
+      toast({
+        title: "Demo Login Successful",
+        description: "Logged in with demo account",
+      })
+
+      // Ensure redirection happens after login is complete
+      setTimeout(() => {
+        router.push(redirectPath)
+      }, 500)
+    } catch (error) {
+      toast({
+        title: "Demo Login Failed",
+        description: "Please try again or use regular login.",
+        variant: "destructive",
+      })
+      setIsLoading(false)
+    }
+  }
+
+  const handleRegister = async (e) => {
+    e.preventDefault()
+    setIsLoading(true)
+
+    // Validate passwords match
+    if (registerData.password !== registerData.confirmPassword) {
+      toast({
+        title: "Passwords don't match",
+        description: "Please make sure your passwords match.",
+        variant: "destructive",
+      })
+      setIsLoading(false)
+      return
+    }
+
+    try {
+      await registerUser({
+        firstName: registerData.firstName,
+        lastName: registerData.lastName,
+        email: registerData.email,
+        password: registerData.password,
+      })
+
+      toast({
+        title: "Registration successful",
+        description: "Your account has been created. You can now log in.",
+      })
+
+      // Reset form and switch to login tab
+      setRegisterData({
+        firstName: "",
+        lastName: "",
+        email: "",
+        password: "",
+        confirmPassword: "",
+      })
+
+      // Switch to login tab
+      document.getElementById("login-tab")?.click()
+    } catch (error) {
+      toast({
+        title: "Registration failed",
+        description: "Please check your information and try again.",
+        variant: "destructive",
+      })
+    } finally {
+      setIsLoading(false)
+    }
   }
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gray-50">
-      <form onSubmit={handleSubmit} className="w-full max-w-sm p-6 space-y-4">
-        <div className="text-center mb-4">
-          <h1 className="text-2xl font-bold text-emerald-600">FoodWorks</h1>
-          <p className="text-gray-600 mt-1">Inventory Management</p>
+    <div className="flex min-h-screen items-center justify-center bg-gray-50 py-12 px-4 sm:px-6 lg:px-8">
+      <div className="w-full max-w-md">
+        <div className="text-center mb-8">
+          <h1 className="text-3xl font-bold text-emerald-600">FoodWorks</h1>
+          <p className="mt-2 text-gray-600">Inventory Management System</p>
         </div>
 
-        <Input
-          type="email"
-          placeholder="Email"
-          value={email}
-          onChange={(e) => setEmail(e.target.value)}
-          required
-        />
-        <Input
-          type="password"
-          placeholder="Password"
-          value={password}
-          onChange={(e) => setPassword(e.target.value)}
-          required
-        />
+        <Tabs defaultValue="login" className="w-full">
+          <TabsList className="grid w-full grid-cols-2 mb-6">
+            <TabsTrigger id="login-tab" value="login">
+              Login
+            </TabsTrigger>
+            <TabsTrigger value="register">Register</TabsTrigger>
+          </TabsList>
 
-        <Button
-          type="submit"
-          className="w-full bg-emerald-600 hover:bg-emerald-700 h-12 text-lg"
-        >
-          Login
-        </Button>
+          <TabsContent value="login">
+            <Card>
+              <CardHeader>
+                <CardTitle>Login</CardTitle>
+                <CardDescription>Enter your credentials to access your account</CardDescription>
+              </CardHeader>
+              <form onSubmit={handleLogin}>
+                <CardContent className="space-y-4">
+                  <div className="space-y-2">
+                    <Label htmlFor="email">Email</Label>
+                    <Input
+                      id="email"
+                      type="email"
+                      placeholder="name@example.com"
+                      required
+                      value={loginData.email}
+                      onChange={handleLoginChange}
+                    />
+                  </div>
+                  <div className="space-y-2">
+                    <div className="flex items-center justify-between">
+                      <Label htmlFor="password">Password</Label>
+                      <Link href="/forgot-password" className="text-sm text-emerald-600 hover:text-emerald-500">
+                        Forgot password?
+                      </Link>
+                    </div>
+                    <Input
+                      id="password"
+                      type="password"
+                      required
+                      value={loginData.password}
+                      onChange={handleLoginChange}
+                    />
+                  </div>
+                </CardContent>
+                <CardFooter className="flex flex-col gap-4">
+                  <Button type="submit" className="w-full" disabled={isLoading}>
+                    {isLoading ? "Logging in..." : "Login"}
+                  </Button>
+                  <div className="relative w-full">
+                    <div className="absolute inset-0 flex items-center">
+                      <span className="w-full border-t border-gray-300" />
+                    </div>
+                    <div className="relative flex justify-center text-xs uppercase">
+                      <span className="bg-white px-2 text-gray-500">or</span>
+                    </div>
+                  </div>
+                  <Button
+                    type="button"
+                    variant="outline"
+                    className="w-full"
+                    onClick={handleDemoLogin}
+                    disabled={isLoading}
+                  >
+                    Quick Demo Login
+                  </Button>
+                </CardFooter>
+              </form>
+            </Card>
+          </TabsContent>
 
-        <Button
-          type="button"
-          variant="outline"
-          onClick={handleQuickLogin}
-          className="w-full h-12 text-lg"
-        >
-          Quick Login
-        </Button>
-      </form>
+          <TabsContent value="register">
+            <Card>
+              <CardHeader>
+                <CardTitle>Create an account</CardTitle>
+                <CardDescription>Enter your information to create a new account</CardDescription>
+              </CardHeader>
+              <form onSubmit={handleRegister}>
+                <CardContent className="space-y-4">
+                  <div className="grid grid-cols-2 gap-4">
+                    <div className="space-y-2">
+                      <Label htmlFor="firstName">First name</Label>
+                      <Input id="firstName" required value={registerData.firstName} onChange={handleRegisterChange} />
+                    </div>
+                    <div className="space-y-2">
+                      <Label htmlFor="lastName">Last name</Label>
+                      <Input id="lastName" required value={registerData.lastName} onChange={handleRegisterChange} />
+                    </div>
+                  </div>
+                  <div className="space-y-2">
+                    <Label htmlFor="email">Email</Label>
+                    <Input
+                      id="email"
+                      type="email"
+                      placeholder="name@example.com"
+                      required
+                      value={registerData.email}
+                      onChange={handleRegisterChange}
+                    />
+                  </div>
+                  <div className="space-y-2">
+                    <Label htmlFor="password">Password</Label>
+                    <Input
+                      id="password"
+                      type="password"
+                      required
+                      value={registerData.password}
+                      onChange={handleRegisterChange}
+                    />
+                  </div>
+                  <div className="space-y-2">
+                    <Label htmlFor="confirmPassword">Confirm Password</Label>
+                    <Input
+                      id="confirmPassword"
+                      type="password"
+                      required
+                      value={registerData.confirmPassword}
+                      onChange={handleRegisterChange}
+                    />
+                  </div>
+                </CardContent>
+                <CardFooter>
+                  <Button type="submit" className="w-full" disabled={isLoading}>
+                    {isLoading ? "Creating account..." : "Create account"}
+                  </Button>
+                </CardFooter>
+              </form>
+            </Card>
+          </TabsContent>
+        </Tabs>
+      </div>
     </div>
   )
 }
