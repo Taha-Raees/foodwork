@@ -15,6 +15,12 @@ export default function LoginPage() {
     router.push("/dashboard")
   }
 
+  const handleQuickLogin = () => {
+    setEmail("demo@foodworks.com")
+    setPassword("demo123")
+    router.push("/dashboard")
+  }
+
   return (
     <div className="min-h-screen flex items-center justify-center bg-gray-50">
       <form onSubmit={handleSubmit} className="w-full max-w-sm p-6 space-y-4">
@@ -43,6 +49,15 @@ export default function LoginPage() {
           className="w-full bg-emerald-600 hover:bg-emerald-700 h-12 text-lg"
         >
           Login
+        </Button>
+
+        <Button
+          type="button"
+          variant="outline"
+          onClick={handleQuickLogin}
+          className="w-full h-12 text-lg"
+        >
+          Quick Login
         </Button>
       </form>
     </div>
