@@ -20,6 +20,7 @@ export default function Home() {
                   Get Started <ArrowRight className="ml-2 h-5 w-5" />
                 </Link>
               </Button>
+
             </div>
           </div>
         </div>
