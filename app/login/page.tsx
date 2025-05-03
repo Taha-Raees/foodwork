@@ -48,23 +48,25 @@ export default function AuthPage() {
     setIsLoading(true)
 
     try {
-      await login(loginData.email, loginData.password)
+      const success = await login(loginData.email, loginData.password)
 
-      toast({
-        title: "Login successful",
-        description: "Redirecting to dashboard...",
-      })
+      if (success) {
+        toast({
+          title: "Login successful",
+          description: "Redirecting to dashboard...",
+        })
 
-      // Ensure redirection happens after login is complete
-      setTimeout(() => {
+        // Wait for state updates to complete
+        await new Promise((resolve) => setTimeout(resolve, 100))
         router.push(redirectPath)
-      }, 500)
+      }
     } catch (error) {
       toast({
         title: "Login failed",
         description: "Please check your credentials and try again.",
         variant: "destructive",
       })
+    } finally {
       setIsLoading(false)
     }
   }
@@ -79,23 +81,25 @@ export default function AuthPage() {
     })
 
     try {
-      await login("demo@foodworks.com", "demo123")
+      const success = await login("demo@foodworks.com", "demo123")
 
-      toast({
-        title: "Demo Login Successful",
-        description: "Logged in with demo account",
-      })
+      if (success) {
+        toast({
+          title: "Demo Login Successful",
+          description: "Logged in with demo account",
+        })
 
-      // Ensure redirection happens after login is complete
-      setTimeout(() => {
+        // Wait for state updates to complete
+        await new Promise((resolve) => setTimeout(resolve, 100))
         router.push(redirectPath)
-      }, 500)
+      }
     } catch (error) {
       toast({
         title: "Demo Login Failed",
         description: "Please try again or use regular login.",
         variant: "destructive",
       })
+    } finally {
       setIsLoading(false)
     }
   }
