@@ -23,13 +23,19 @@ export default function DashboardPage() {
   const router = useRouter()
 
   useEffect(() => {
+    // only redirect *after* we've checked auth
     if (!isLoading && !user) {
-      router.push("/login")
+      router.replace("/login?redirect=/dashboard")
     }
-  }, [user, isLoading])
+  }, [user, isLoading, router])
 
+  // show a loading state until we know whether they're in or out
   if (isLoading || !user) {
-    return <div className="min-h-screen flex items-center justify-center">Loading...</div>
+    return (
+      <div className="min-h-screen flex items-center justify-center">
+        Loading…
+      </div>
+    )
   }
   return (
     <div className="container mx-auto px-4 py-8">
