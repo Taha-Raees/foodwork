@@ -63,7 +63,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     try {
       // In a real app, you would make an API call to your backend
       // For demo purposes, we'll simulate a successful login
-      await new Promise((resolve) => setTimeout(resolve, 1000))
+      await new Promise((resolve) => setTimeout(resolve, 800))
 
       // Set a mock user
       const mockUser = {
@@ -79,8 +79,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       // Set a cookie to persist the session
       setCookie("auth-token", "demo-token-value", { maxAge: 60 * 60 * 24 * 7 }) // 1 week
 
-      // Redirect to dashboard
-      router.push("/dashboard")
+      return true
     } catch (error) {
       console.error("Login error:", error)
       throw error

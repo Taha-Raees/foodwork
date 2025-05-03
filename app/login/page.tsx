@@ -55,14 +55,47 @@ export default function AuthPage() {
         description: "Redirecting to dashboard...",
       })
 
-      router.push(redirectPath)
+      // Ensure redirection happens after login is complete
+      setTimeout(() => {
+        router.push(redirectPath)
+      }, 500)
     } catch (error) {
       toast({
         title: "Login failed",
         description: "Please check your credentials and try again.",
         variant: "destructive",
       })
-    } finally {
+      setIsLoading(false)
+    }
+  }
+
+  const handleDemoLogin = async () => {
+    setIsLoading(true)
+
+    // Set demo credentials
+    setLoginData({
+      email: "demo@foodworks.com",
+      password: "demo123",
+    })
+
+    try {
+      await login("demo@foodworks.com", "demo123")
+
+      toast({
+        title: "Demo Login Successful",
+        description: "Logged in with demo account",
+      })
+
+      // Ensure redirection happens after login is complete
+      setTimeout(() => {
+        router.push(redirectPath)
+      }, 500)
+    } catch (error) {
+      toast({
+        title: "Demo Login Failed",
+        description: "Please try again or use regular login.",
+        variant: "destructive",
+      })
       setIsLoading(false)
     }
   }
@@ -168,9 +201,26 @@ export default function AuthPage() {
                     />
                   </div>
                 </CardContent>
-                <CardFooter>
+                <CardFooter className="flex flex-col gap-4">
                   <Button type="submit" className="w-full" disabled={isLoading}>
                     {isLoading ? "Logging in..." : "Login"}
+                  </Button>
+                  <div className="relative w-full">
+                    <div className="absolute inset-0 flex items-center">
+                      <span className="w-full border-t border-gray-300" />
+                    </div>
+                    <div className="relative flex justify-center text-xs uppercase">
+                      <span className="bg-white px-2 text-gray-500">or</span>
+                    </div>
+                  </div>
+                  <Button
+                    type="button"
+                    variant="outline"
+                    className="w-full"
+                    onClick={handleDemoLogin}
+                    disabled={isLoading}
+                  >
+                    Quick Demo Login
                   </Button>
                 </CardFooter>
               </form>
