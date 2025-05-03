@@ -73,15 +73,17 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         role: "admin" as const,
       }
 
-      // Set the user in state
+      // Set the user in state and cookie
       setUser(mockUser)
-
-      // Set a cookie to persist the session
       setCookie("auth-token", "demo-token-value", { maxAge: 60 * 60 * 24 * 7 }) // 1 week
 
+      // Wait for state to update
+      await new Promise((resolve) => setTimeout(resolve, 100))
       return true
     } catch (error) {
       console.error("Login error:", error)
+      setUser(null)
+      deleteCookie("auth-token")
       throw error
     } finally {
       setIsLoading(false)

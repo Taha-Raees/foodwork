@@ -56,9 +56,9 @@ export default function AuthPage() {
           description: "Redirecting to dashboard...",
         })
 
-        // Wait for state updates to complete
+        // Use replace instead of push and ensure we wait for state updates
         await new Promise((resolve) => setTimeout(resolve, 100))
-        router.push(redirectPath)
+        router.replace(redirectPath)
       }
     } catch (error) {
       toast({
@@ -89,9 +89,9 @@ export default function AuthPage() {
           description: "Logged in with demo account",
         })
 
-        // Wait for state updates to complete
+        // Use replace instead of push and ensure we wait for state updates
         await new Promise((resolve) => setTimeout(resolve, 100))
-        router.push(redirectPath)
+        router.replace(redirectPath)
       }
     } catch (error) {
       toast({
